@@ -1,0 +1,57 @@
+import { Avaliacao } from '../modelo/avaliacao';
+import { sql } from '../util/conexao';
+
+export class AvaliacaoDAO {
+    public async criarAvaliacao(avaliacao: Avaliacao): Promise<void> {
+        try {
+            const result: any = await sql(
+                'INSERT INTO avaliacao (id, livro_id, nota, comentario) VALUES (?, ?, ?, ?) RETURNING *',
+                [avaliacao.id, avaliacao.livroId, avaliacao.avaliacao, avaliacao.comentario]
+            );
+        } catch (error) {
+            console.error('Erro ao criar avaliação:', error);
+            throw new Error('Erro ao criar avaliação');
+        }
+    }
+
+    public async buscarAvaliacoesPorLivroId(livroId: string): Promise<Avaliacao[]> {
+        try {
+            const rows: any = await sql('SELECT * FROM avaliacao WHERE livro_id = ?', [livroId]);
+            if (rows.length === 0) {
+                return [];
+            }
+            const avaliacao = Avaliacao.reconstruir(rows[0]);
+            return avaliacao ? [avaliacao] : [];
+        } catch (error) {
+            console.error('Erro ao buscar avaliações:', error);
+            throw new Error('Erro ao buscar avaliações');
+        }
+    }
+
+    public async atualizarAvaliacao(avaliacao: Avaliacao): Promise<void> {
+        try {
+            const result: any = await sql(
+                'UPDATE avaliacao SET nota = ?, comentario = ? WHERE id = ? RETURNING *',
+                [avaliacao.avaliacao, avaliacao.comentario, avaliacao.id]
+            );
+            if (result.length === 0) {
+                throw new Error('Avaliação não encontrada');
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar avaliação:', error);
+            throw new Error('Erro ao atualizar avaliação');
+        }
+    }
+
+    public async deletarAvaliacao(id: string): Promise<void> {
+        try {
+            const result: any = await sql('DELETE FROM avaliacao WHERE id = ? RETURNING *', [id]);
+            if (result.length === 0) {
+                throw new Error('Avaliação não encontrada');
+            }
+        } catch (error) {
+            console.error('Erro ao deletar avaliação:', error);
+            throw new Error('Erro ao deletar avaliação');
+        }
+    }
+}
