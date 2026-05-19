@@ -5,6 +5,8 @@ import { Avaliacao } from './modelo/avaliacao';
 import { sql } from './util/conexao';
 import { LivroControle } from './controller/livro.controle';
 import { AvaliacaoControle } from './controller/avaliacao.controle';
+import { AuthController } from './controller/authController.controle';
+import 'reflect-metadata';
 
 dotenv.config();
 
@@ -64,6 +66,11 @@ app.put('/avaliacoes/:id', async (req, res) => {
 app.delete('/avaliacoes/:id', async (req, res) => {
     const avaliacaoControle = new AvaliacaoControle();
     await avaliacaoControle.deletarAvaliacao(req, res);
+});
+
+app.post('/login', async (req, res) => {
+    const authController = new AuthController();
+    await authController.login(req, res);
 });
 
 app.listen(3000, () => {
