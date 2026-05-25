@@ -7,7 +7,7 @@ export class usuarioDAO {
     public async criarUsuario(usuario: Usuario): Promise<void> {
         try {
             const result: any = await sql(
-                'INSERT INTO usuario (id, email, senha) VALUES (?, ?, ?) RETURNING *',
+                'INSERT INTO usuario (id, email, senha) VALUES ($1, $2, $3) RETURNING *',
                 [usuario.id, usuario.email, usuario.senha]
             );
         } catch (error) {
@@ -18,7 +18,7 @@ export class usuarioDAO {
 
     public async buscarUsuarioPorId(id: string): Promise<Usuario | null> {
         try {
-            const rows: any = await sql('SELECT * FROM usuario WHERE id = ?', [id]);
+            const rows: any = await sql('SELECT * FROM usuario WHERE id = $1', [id]);
             if (rows.length === 0) {
                 return null;
             }
@@ -33,7 +33,7 @@ export class usuarioDAO {
     public async atualizarUsuario(id: string, usuario: Usuario): Promise<void> {
         try {
             await sql(
-                'UPDATE usuario SET email = ?, senha = ? WHERE id = ?',
+                'UPDATE usuario SET email = $1, senha = $2 WHERE id = $3',
                 [usuario.email, usuario.senha, id]
             );
         } catch (error) {
@@ -54,7 +54,7 @@ export class usuarioDAO {
 
     public async deletarUsuario(id: string): Promise<void> {
         try {
-            await sql('DELETE FROM usuario WHERE id = ?', [id]);
+            await sql('DELETE FROM usuario WHERE id = $1', [id]);
         } catch (error) {
             console.error('Erro ao deletar usuário:', error);
             throw new Error('Erro ao deletar usuário');
@@ -64,7 +64,7 @@ export class usuarioDAO {
         try {
 
             const usuario = await sql(
-                'SELECT * FROM usuario WHERE email = ? AND senha = ?',
+                'SELECT * FROM usuario WHERE email = $1 AND senha = $2',
                 [email, senha]
             ) as any[];
 

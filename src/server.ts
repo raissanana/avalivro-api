@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express, { type Request, type Response} from 'express';
 import dotenv from 'dotenv';
 import { Livro } from './modelo/livro';
@@ -6,7 +7,7 @@ import { sql } from './util/conexao';
 import { LivroControle } from './controller/livro.controle';
 import { AvaliacaoControle } from './controller/avaliacao.controle';
 import { AuthController } from './controller/authController.controle';
-import 'reflect-metadata';
+import { UsuarioControle } from './controller/usuario.controle';
 
 dotenv.config();
 
@@ -71,6 +72,21 @@ app.delete('/avaliacoes/:id', async (req, res) => {
 app.post('/login', async (req, res) => {
     const authController = new AuthController();
     await authController.login(req, res);
+});
+
+app.post ('/usuarios', async (req, res) => {
+    const usuarioControle = new UsuarioControle();
+    await usuarioControle.criarUsuario(req, res);
+});
+
+app.put('/usuarios/:id', async (req, res) => {
+    const usuarioControle = new UsuarioControle();
+    await usuarioControle.atualizarUsuario(req, res);
+});
+
+app.get('/usuarios/:id', async (req, res) => {
+    const usuarioControle = new UsuarioControle();
+    await usuarioControle.buscarUsuarioPorId(req, res);
 });
 
 app.listen(3000, () => {

@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class LivroListDTO {
@@ -23,9 +24,8 @@ export class LivroCreateDTO {
     @IsString({ message: 'Autor deve ser uma string' })
     autor: string;
 
+    @Type(() => Number)
     @IsNotEmpty({ message: 'Ano é obrigatório' })
     @IsNumber({}, { message: 'Ano deve ser um número' })
     ano: number;
-
-    avaliacaoMedia?: number;
 }

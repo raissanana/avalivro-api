@@ -6,6 +6,5 @@ export class LoginDTO {
     email: string;
 
     @IsNotEmpty({ message: 'Senha é obrigatória' })
-    @IsString({ message: 'Senha deve ser uma string' })
     senha: string;
 }

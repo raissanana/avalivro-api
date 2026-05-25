@@ -1,4 +1,4 @@
-import { LivroListDTO } from '../dto/livro.dto';
+import { LivroListDTO } from '../dto/livro.dto.js';
 import { Livro } from '../modelo/livro';
 import { sql } from '../util/conexao';
 
@@ -21,7 +21,7 @@ export class LivroDAO {
             if (rows.length === 0) {
                 return null;
             }
-            const livro = Livro.reconstruir(rows[0]);
+            const livro = Livro.reconstruir({ id: rows[0].id, titulo: rows[0].titulo, autor: rows[0].autor, ano: rows[0].ano, avaliacaoMedia: rows[0].avaliacao_media });
             return livro;
         } catch (error) {
             console.error('Erro ao buscar livro:', error);
@@ -42,7 +42,7 @@ export class LivroDAO {
     public async buscarLivrosporAutor(autor: string): Promise<Livro[]> {
         try {
             const rows: any = await sql('SELECT * FROM livro WHERE autor = ?', [autor]);
-            return rows.map((row: any) => Livro.reconstruir(row));
+            return rows.map((row: any) => Livro.reconstruir({ id: row.id, titulo: row.titulo, autor: row.autor, ano: row.ano, avaliacaoMedia: row.avaliacao_media }));
         } catch (error) {
             console.error('Erro ao buscar livros por autor:', error);
             throw new Error('Erro ao buscar livros por autor');

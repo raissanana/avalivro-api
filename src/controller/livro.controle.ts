@@ -21,7 +21,7 @@ export class LivroControle {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
 
-            const livro = Livro.construir(livroDto.titulo, livroDto.autor, livroDto.ano, livroDto.avaliacaoMedia);
+            const livro = Livro.construir(livroDto.titulo, livroDto.autor, livroDto.ano);
             await this.livroDAO.criarLivro(livro);
             res.status(201).json({ message: 'Livro criado com sucesso', livro });
         } catch (erro) {

@@ -54,4 +54,19 @@ export class AvaliacaoDAO {
             throw new Error('Erro ao deletar avaliação');
         }
     }
+
+    public async calcularMediaPorTitulo(titulo: string): Promise<number | null> {
+        try {
+            const rows: any = await sql(`SELECT AVG(a.nota) AS media FROM avaliacao a JOIN livro l ON l.id = a.livro_id WHERE l.titulo = ?`, [titulo]);
+            if (!rows[0]?.media) {
+                return null;
+            }
+
+            return Number(rows[0].media);
+
+        } catch (error) {
+            console.error('Erro ao calcular média:', error);
+            throw new Error('Erro ao calcular média');
+        }
+    }
 }
