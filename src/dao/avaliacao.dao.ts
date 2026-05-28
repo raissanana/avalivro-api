@@ -4,9 +4,10 @@ import { sql } from '../util/conexao';
 export class AvaliacaoDAO {
     public async criarAvaliacao(avaliacao: Avaliacao): Promise<void> {
         try {
+            const usuarioId = process.env.DEFAULT_DB_USER_ID;
             await sql(
-                'INSERT INTO avaliacao (id, livro_id, nota, comentario) VALUES (?, ?, ?, ?)',
-                [avaliacao.id, avaliacao.livroId, avaliacao.avaliacao, avaliacao.comentario]
+                'INSERT INTO avaliacao (id, livro_id, nota, comentario, usuario_id) VALUES (?, ?, ?, ?, ?)',
+                [avaliacao.id, avaliacao.livroId, avaliacao.avaliacao, avaliacao.comentario, usuarioId]
             );
         } catch (error) {
             console.error('Erro ao criar avaliação:', error);

@@ -5,9 +5,10 @@ import { sql } from '../util/conexao';
 export class LivroDAO {
     public async criarLivro(livro: Livro): Promise<void> {
         try {
+            const usuarioId = process.env.DEFAULT_DB_USER_ID;
             const result: any = await sql(
-                'INSERT INTO livro (id, titulo, autor, ano, avaliacao_media) VALUES (?, ?, ?, ?, ?) RETURNING *',
-                [livro.id, livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia]
+                'INSERT INTO livro (id, titulo, autor, ano, avaliacao_media, created_by) VALUES (?, ?, ?, ?, ?, ?) RETURNING *',
+                [livro.id, livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, usuarioId]
             );
         } catch (error) {
             console.error('Erro ao criar livro:', error);
