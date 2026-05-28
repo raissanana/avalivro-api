@@ -4,8 +4,8 @@ import { sql } from '../util/conexao';
 export class AvaliacaoDAO {
     public async criarAvaliacao(avaliacao: Avaliacao): Promise<void> {
         try {
-            const result: any = await sql(
-                'INSERT INTO avaliacao (id, livro_id, nota, comentario) VALUES (?, ?, ?, ?) RETURNING *',
+            await sql(
+                'INSERT INTO avaliacao (id, livro_id, nota, comentario) VALUES (?, ?, ?, ?)',
                 [avaliacao.id, avaliacao.livroId, avaliacao.avaliacao, avaliacao.comentario]
             );
         } catch (error) {
