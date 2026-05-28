@@ -2,7 +2,7 @@ export type propsAvaliacao = {
     id: string,
     livroId: string,
     avaliacao: number,
-    comentario: string
+    comentario?: string | null
 }
 
 export class Avaliacao {
@@ -14,9 +14,9 @@ export class Avaliacao {
     public static construir(
         livroId: string,
         avaliacao: number,
-        comentario: string
+        comentario?: string
     ) {
-        if (!livroId || !avaliacao || !comentario) {
+        if (!livroId || !avaliacao) {
             throw new Error('Todos os campos são obrigatórios');
         }
         if (typeof avaliacao !== 'number' || avaliacao < 0 || avaliacao > 5) {
@@ -28,7 +28,7 @@ export class Avaliacao {
             id,
             livroId,
             avaliacao,
-            comentario
+            comentario: comentario ?? null
         }
         return new Avaliacao(props);
     }
