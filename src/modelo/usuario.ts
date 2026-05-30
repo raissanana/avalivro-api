@@ -1,8 +1,11 @@
+import crypto from 'crypto';
+
 export type propsUsuario = {
     id: string,
     email: string,
     senha: string
 }
+
 
 export class Usuario {
     private constructor(

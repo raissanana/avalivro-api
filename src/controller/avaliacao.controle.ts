@@ -1,20 +1,26 @@
-import { AvaliacaoDAO } from "../dao/avaliacao.dao";
-import { Avaliacao } from "../modelo/avaliacao";
 import type { Request, Response } from 'express';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { AvaliacaoCreateDTO } from '../dto/avaliacao.dto';
+import { AvaliacaoService } from "../service/avaliacao.service";
 
 export class AvaliacaoControle {
-    private avaliacaoDAO: AvaliacaoDAO;
+    private avaliacaoService: AvaliacaoService;
 
-    constructor() {
-        this.avaliacaoDAO = new AvaliacaoDAO();
+    public constructor(avaliacaoService: AvaliacaoService) {
+        this.avaliacaoService = avaliacaoService;
     }
 
     public async criarAvaliacao(req: Request, res: Response) {
         try {
-            const { livroId, avaliacao: nota, comentario } = req.body;
-            const avaliacao =  Avaliacao.construir(livroId, nota, comentario);
-            await this.avaliacaoDAO.criarAvaliacao(avaliacao);
-            res.status(201).json({ message: 'Avaliação criada com sucesso', avaliacao});
+            const avaliacaoDto = plainToInstance(AvaliacaoCreateDTO, req.body);
+            const errors = await validate(avaliacaoDto);
+            if (errors.length > 0) {
+                return res.status(400).json({ errors: errors.map(e => e.toString()) });
+            }
+
+            const avaliacao = await this.avaliacaoService.criarAvaliacao(avaliacaoDto);
+            res.status(201).json({ message: 'Avaliação criada com sucesso', avaliacao });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao criar avaliação' });
         }
@@ -25,7 +31,7 @@ export class AvaliacaoControle {
             if (!id) {
                 return res.status(400).json({ error: 'ID do livro é obrigatório' });
             }
-            const avaliacoes = await this.avaliacaoDAO.buscarAvaliacoesPorLivroId(id.toString());
+            const avaliacoes = await this.avaliacaoService.buscarAvaliacoesPorLivroId(id.toString());
             res.json(avaliacoes);
         } catch (error) {
             res.status(500).json({ error: 'Erro ao buscar avaliações' });
@@ -35,9 +41,13 @@ export class AvaliacaoControle {
     public async atualizarAvaliacao(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const { avaliacao: nota, comentario } = req.body;
-            const avaliacao = Avaliacao.reconstruir({ id: id.toString(), livroId: '', avaliacao: nota, comentario });
-            await this.avaliacaoDAO.atualizarAvaliacao(avaliacao);
+            const livroDto = plainToInstance(AvaliacaoCreateDTO, req.body);
+            const errors = await validate(livroDto);
+            if (errors.length > 0) {
+                return res.status(400).json({ errors: errors.map(e => e.toString()) });
+            }
+
+            const avaliacao = await this.avaliacaoService.atualizarAvaliacao(id.toString(), livroDto);
             res.json({ message: 'Avaliação atualizada com sucesso', avaliacao });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao atualizar avaliação' });
@@ -47,7 +57,7 @@ export class AvaliacaoControle {
     public async deletarAvaliacao(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            await this.avaliacaoDAO.deletarAvaliacao(id.toString());
+            await this.avaliacaoService.deletarAvaliacao(id.toString());
             res.json({ message: 'Avaliação deletada com sucesso' });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao deletar avaliação' });

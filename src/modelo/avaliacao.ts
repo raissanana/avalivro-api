@@ -1,9 +1,12 @@
+import crypto from 'crypto';
+
 export type propsAvaliacao = {
     id: string,
     livroId: string,
     avaliacao: number,
     comentario?: string | null
 }
+
 
 export class Avaliacao {
     private constructor(

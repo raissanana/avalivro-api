@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import express, { type Request, type Response} from 'express';
+import express, { type Request, type Response, Router} from 'express';
 import dotenv from 'dotenv';
 import { Livro } from './modelo/livro';
 import { Avaliacao } from './modelo/avaliacao';
@@ -20,24 +20,25 @@ app.post('/livros', async (req, res) => {
     await livroControle.criarLivro(req, res);
 });
 
-app.get('/livros/:id', async (req, res) => {
-    const livroControle = new LivroControle();
-    await livroControle.buscarLivroPorId(req, res);
-});
-
+// Rotas estáticas ANTES das rotas com parâmetros dinâmicos (:id)
 app.get('/livros', async (req, res) => {
     const livroControle = new LivroControle();
     await livroControle.listarTodosLivros(req, res);
 });
 
-app.get('/livros/:id/avaliacoes', async (req, res) => {
-    const livroControle = new LivroControle();
-    await livroControle.buscarAvaliacoesPorLivroId(req, res);
-});
-
 app.get('/livros/autor/:autor', async (req, res) => {
     const livroControle = new LivroControle();
     await livroControle.buscarLivrosporAutor(req, res);
+});
+
+app.get('/livros/:id', async (req, res) => {
+    const livroControle = new LivroControle();
+    await livroControle.buscarLivroPorId(req, res);
+});
+
+app.get('/livros/:id/avaliacoes', async (req, res) => {
+    const livroControle = new LivroControle();
+    await livroControle.buscarAvaliacoesPorLivroId(req, res);
 });
 
 app.put('/livros/:id', async (req, res) => {
@@ -87,6 +88,16 @@ app.put('/usuarios/:id', async (req, res) => {
 app.get('/usuarios/:id', async (req, res) => {
     const usuarioControle = new UsuarioControle();
     await usuarioControle.buscarUsuarioPorId(req, res);
+});
+
+app.get('/usuarios', async (req, res) => {
+    const usuarioControle = new UsuarioControle();
+    await usuarioControle.listarTodosUsuarios(req, res);
+});
+
+app.delete('/usuarios/:id', async (req, res) => {
+    const usuarioControle = new UsuarioControle();
+    await usuarioControle.deletarUsuario(req, res);
 });
 
 app.listen(3000, () => {

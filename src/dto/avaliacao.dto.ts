@@ -20,10 +20,10 @@ export class AvaliacaoListDTO {
     @IsNotEmpty({ message: 'ID do livro é obrigatório' })
     @IsString({ message: 'ID do livro deve ser uma string' })
     livroId: string;
-    
+
     @IsNotEmpty({ message: 'Avaliação é obrigatória' })
     @IsNumber({}, { message: 'Avaliação deve ser um número' })
     avaliacao: number;
 
-    comentario?: string;
+    comentario?: string | null;
 }

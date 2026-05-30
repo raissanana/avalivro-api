@@ -14,6 +14,11 @@ const pool = new Pool({
   connectionTimeoutMillis: 5000,
 });
 
+pool.on('error', (err) => {
+  console.error('Erro inesperado no cliente do pool do banco:', err);
+});
+
+
 function convertPlaceholders(query: string) {
   let index = 0;
 

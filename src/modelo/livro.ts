@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export type propsLivro ={
     id: string,
     titulo: string,
@@ -5,6 +7,7 @@ export type propsLivro ={
     ano: number,
     avaliacaoMedia?: number
 }
+
 
 export class Livro {
     private constructor(

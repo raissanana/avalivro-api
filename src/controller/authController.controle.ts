@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
-import { usuarioDAO } from "../dao/usuario.dao";
 import { LoginDTO } from "../dto/login.dto";
 import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
+import { AuthService } from "../service/authController.service";
 
 export class AuthController {
-    private usuarioDAO: usuarioDAO;
-    constructor() {
-        this.usuarioDAO = new usuarioDAO();
+    private authService: AuthService;
+    
+    public constructor(authService: AuthService) {
+        this.authService = authService;
     }
 
     public async login(req: Request, res: Response) {
@@ -17,7 +18,8 @@ export class AuthController {
             if (errors.length > 0) {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
-            const usuario = await this.usuarioDAO.buscarPorLogin(loginDto.email, loginDto.senha);
+            
+            const usuario = await this.authService.login(loginDto);
             if (!usuario) {
                 return res.status(401).json({ error: 'Credenciais inválidas' });
             }

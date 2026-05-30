@@ -1,15 +1,14 @@
 import { plainToInstance } from "class-transformer";
-import { LivroDAO } from "../dao/livro.dao.js";
-import { Livro } from "../modelo/livro.js";
 import type { Request, Response } from "express";
 import { LivroCreateDTO } from "../dto/livro.dto.js";
 import { validate } from "class-validator";
+import { LivroService } from "../service/livro.service.js";
 
 export class LivroControle {
-    private livroDAO: LivroDAO;
+    private livroService: LivroService;
 
-    constructor(){
-        this.livroDAO = new LivroDAO(); 
+    public constructor(livroService: LivroService) {
+        this.livroService = livroService;
     }
 
     public async criarLivro(req: Request, res: Response) {
@@ -21,11 +20,11 @@ export class LivroControle {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
 
-            const livro = Livro.construir(livroDto.titulo, livroDto.autor, livroDto.ano);
-            await this.livroDAO.criarLivro(livro);
-            res.status(201).json({ message: 'Livro criado com sucesso', livro });
+            await this.livroService.criarLivro(livroDto);
+
+            res.status(201).json({ message: 'Livro criado com sucesso', livro: livroDto });
         } catch (erro) {
-            res.status(500).json({ error: 'Erro ao criar livro'});
+            res.status(500).json({ error: 'Erro ao criar livro' });
         }
     }
 
@@ -35,7 +34,7 @@ export class LivroControle {
             if (!id) {
                 return res.status(400).json({ error: 'ID é obrigatório' });
             }
-            const livro = await this.livroDAO.buscarLivroPorId(id.toString());
+            const livro = await this.livroService.buscarLivroPorId(id.toString());
             if (!livro) {
                 return res.status(404).json({ error: 'Livro não encontrado' });
             }
@@ -51,7 +50,7 @@ export class LivroControle {
             if (!autor) {
                 return res.status(400).json({ error: 'Autor é obrigatório' });
             }
-            const livros = await this.livroDAO.buscarLivrosporAutor(autor.toString());
+            const livros = await this.livroService.buscarLivrosporAutor(autor.toString());
             res.json(livros);
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao buscar livros por autor' });
@@ -60,7 +59,7 @@ export class LivroControle {
 
     public async listarTodosLivros(req: Request, res: Response) {
         try {
-            const livros = await this.livroDAO.listarTodosLivros();
+            const livros = await this.livroService.listarTodosLivros();
             res.json(livros);
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao listar livros' });
@@ -73,7 +72,7 @@ export class LivroControle {
             if (!id) {
                 return res.status(400).json({ error: 'ID é obrigatório' });
             }
-            const avaliacoes = await this.livroDAO.buscarAvaliacoesPorLivroId(id.toString());
+            const avaliacoes = await this.livroService.buscarAvaliacoesPorLivroId(id.toString());
             res.json(avaliacoes);
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao buscar avaliações' });
@@ -85,12 +84,12 @@ export class LivroControle {
             const { id } = req.params;
             const livroDto = plainToInstance(LivroCreateDTO, req.body);
 
-            if (!id) {
-                return res.status(400).json({ error: 'ID é obrigatório' });
+            const errors = await validate(livroDto);
+            if (errors.length > 0) {
+                return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
-            const livro = Livro.reconstruir({ id: id.toString(), titulo: livroDto.titulo, autor: livroDto.autor, ano: livroDto.ano });
-            await this.livroDAO.atualizarLivro(livro);
-            res.json({ message: 'Livro atualizado com sucesso', livro });
+            await this.livroService.atualizarLivro(id.toString(), livroDto);
+            res.json({ message: 'Livro atualizado com sucesso', livro: livroDto });
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao atualizar livro' });
         }
@@ -102,7 +101,7 @@ export class LivroControle {
             if (!id) {
                 return res.status(400).json({ error: 'ID é obrigatório' });
             }
-            await this.livroDAO.excluirLivro(id.toString());
+            await this.livroService.excluirLivro(id.toString());
             res.json({ message: 'Livro excluído com sucesso' });
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao excluir livro' });
