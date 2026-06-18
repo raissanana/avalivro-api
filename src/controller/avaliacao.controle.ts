@@ -19,7 +19,7 @@ export class AvaliacaoControle {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
 
-            const avaliacao = await this.avaliacaoService.criarAvaliacao(avaliacaoDto);
+            const avaliacao = await this.avaliacaoService.criarAvaliacao(avaliacaoDto, req.usuarioId!);
             res.status(201).json({ message: 'Avaliação criada com sucesso', avaliacao });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao criar avaliação' });
@@ -47,7 +47,7 @@ export class AvaliacaoControle {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
 
-            const avaliacao = await this.avaliacaoService.atualizarAvaliacao(id.toString(), livroDto);
+            const avaliacao = await this.avaliacaoService.atualizarAvaliacao(id.toString(), livroDto, req.usuarioId!);
             res.json({ message: 'Avaliação atualizada com sucesso', avaliacao });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao atualizar avaliação' });
@@ -57,7 +57,7 @@ export class AvaliacaoControle {
     public async deletarAvaliacao(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            await this.avaliacaoService.deletarAvaliacao(id.toString());
+            await this.avaliacaoService.deletarAvaliacao(id.toString(), req.usuarioId!);
             res.json({ message: 'Avaliação deletada com sucesso' });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao deletar avaliação' });

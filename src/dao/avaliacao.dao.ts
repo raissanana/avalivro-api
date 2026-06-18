@@ -2,9 +2,14 @@ import { Avaliacao } from '../modelo/avaliacao';
 import { sql } from '../util/conexao';
 
 export class AvaliacaoDAO {
-    public async criarAvaliacao(avaliacao: Avaliacao): Promise<void> {
+    public async criarAvaliacao(avaliacao: Avaliacao, usuarioId: string): Promise<void> {
         try {
-            const usuarioId = process.env.DEFAULT_DB_USER_ID;
+            // Verifica se o livro pertence a este usuário
+            const livroCheck: any = await sql('SELECT id FROM livro WHERE id = ? AND created_by = ?', [avaliacao.livroId, usuarioId]);
+            if (livroCheck.length === 0) {
+                throw new Error('Você só pode avaliar livros criados por você');
+            }
+
             await sql(
                 'INSERT INTO avaliacao (id, livro_id, nota, comentario, usuario_id) VALUES (?, ?, ?, ?, ?)',
                 [avaliacao.id, avaliacao.livroId, avaliacao.avaliacao, avaliacao.comentario, usuarioId]
@@ -29,14 +34,14 @@ export class AvaliacaoDAO {
         }
     }
 
-    public async atualizarAvaliacao(avaliacao: Avaliacao): Promise<void> {
+    public async atualizarAvaliacao(avaliacao: Avaliacao, usuarioId: string): Promise<void> {
         try {
             const result: any = await sql(
-                'UPDATE avaliacao SET nota = ?, comentario = ? WHERE id = ? RETURNING *',
-                [avaliacao.avaliacao, avaliacao.comentario, avaliacao.id]
+                'UPDATE avaliacao SET nota = ?, comentario = ? WHERE id = ? AND usuario_id = ? RETURNING *',
+                [avaliacao.avaliacao, avaliacao.comentario, avaliacao.id, usuarioId]
             );
             if (result.length === 0) {
-                throw new Error('Avaliação não encontrada');
+                throw new Error('Avaliação não encontrada ou você não tem permissão');
             }
         } catch (error) {
             console.error('Erro ao atualizar avaliação:', error);
@@ -44,11 +49,11 @@ export class AvaliacaoDAO {
         }
     }
 
-    public async deletarAvaliacao(id: string): Promise<void> {
+    public async deletarAvaliacao(id: string, usuarioId: string): Promise<void> {
         try {
-            const result: any = await sql('DELETE FROM avaliacao WHERE id = ? RETURNING *', [id]);
+            const result: any = await sql('DELETE FROM avaliacao WHERE id = ? AND usuario_id = ? RETURNING *', [id, usuarioId]);
             if (result.length === 0) {
-                throw new Error('Avaliação não encontrada');
+                throw new Error('Avaliação não encontrada ou você não tem permissão');
             }
         } catch (error) {
             console.error('Erro ao deletar avaliação:', error);

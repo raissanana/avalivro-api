@@ -9,9 +9,9 @@ export class LivroService {
     public constructor(private readonly livroDAO: LivroDAO, private readonly avaliacaoDAO: AvaliacaoDAO) {
     }
 
-    public async criarLivro(livroDto: LivroCreateDTO): Promise<Livro> {
+    public async criarLivro(livroDto: LivroCreateDTO, usuarioId: string): Promise<Livro> {
         const livro = Livro.construir(livroDto.titulo, livroDto.autor, livroDto.ano);
-        await this.livroDAO.criarLivro(livro);
+        await this.livroDAO.criarLivro(livro, usuarioId);
         return livro;
     }
 
@@ -30,23 +30,24 @@ export class LivroService {
         return avaliacoes;
     }
 
-    public async listarTodosLivros(): Promise<LivroListDTO[]> {
-        const livros = await this.livroDAO.listarTodosLivros();
+    public async listarTodosLivros(usuarioId: string): Promise<LivroListDTO[]> {
+        const livros = await this.livroDAO.listarTodosLivros(usuarioId);
         return livros;
     }
 
-    public async atualizarLivro(id: string, livroDto: LivroCreateDTO): Promise<Livro | null> {
+    public async atualizarLivro(id: string, livroDto: LivroCreateDTO, usuarioId: string): Promise<Livro | null> {
         const livroExistente = await this.livroDAO.buscarLivroPorId(id);
         if (!livroExistente) {
             return null;
         }
         const livroAtualizado = Livro.reconstruir({ id, titulo: livroDto.titulo, autor: livroDto.autor, ano: livroDto.ano })
-        await this.livroDAO.atualizarLivro(livroAtualizado);
+        const atualizadoDB = await this.livroDAO.atualizarLivro(livroAtualizado, usuarioId);
+        if (!atualizadoDB) return null; // se não atualizou (ex: livro não é do usuário)
         return livroAtualizado;
     }
 
-    public async excluirLivro(id: string): Promise<boolean> {
-        const sucesso = await this.livroDAO.excluirLivro(id);
+    public async excluirLivro(id: string, usuarioId: string): Promise<boolean> {
+        const sucesso = await this.livroDAO.excluirLivro(id, usuarioId);
         return sucesso;
     }
 

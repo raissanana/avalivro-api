@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AvaliacaoDAO } from '../dao/avaliacao.dao';
 import { AvaliacaoService } from '../service/avaliacao.service';
 import { AvaliacaoControle } from '../controller/avaliacao.controle';
+import { autenticar } from '../middleware/auth.middleware';
 
 const avaliacaoRoutes = Router();
 
@@ -11,7 +12,7 @@ const avaliacaoControle = new AvaliacaoControle(
 
 avaliacaoRoutes
   .route('/')
-  .post(async (req, res) => avaliacaoControle.criarAvaliacao(req, res));
+  .post(autenticar, async (req, res) => avaliacaoControle.criarAvaliacao(req, res));
 
 avaliacaoRoutes
   .route('/livro/:id')
@@ -19,7 +20,7 @@ avaliacaoRoutes
 
 avaliacaoRoutes
   .route('/:id')
-  .put(async (req, res) => avaliacaoControle.atualizarAvaliacao(req, res))
-  .delete(async (req, res) => avaliacaoControle.deletarAvaliacao(req, res));
+  .put(autenticar, async (req, res) => avaliacaoControle.atualizarAvaliacao(req, res))
+  .delete(autenticar, async (req, res) => avaliacaoControle.deletarAvaliacao(req, res));
 
 export default avaliacaoRoutes;

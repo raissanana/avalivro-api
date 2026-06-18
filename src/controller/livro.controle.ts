@@ -20,7 +20,7 @@ export class LivroControle {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
 
-            await this.livroService.criarLivro(livroDto);
+            await this.livroService.criarLivro(livroDto, req.usuarioId!);
 
             res.status(201).json({ message: 'Livro criado com sucesso', livro: livroDto });
         } catch (erro) {
@@ -59,7 +59,7 @@ export class LivroControle {
 
     public async listarTodosLivros(req: Request, res: Response) {
         try {
-            const livros = await this.livroService.listarTodosLivros();
+            const livros = await this.livroService.listarTodosLivros(req.usuarioId!);
             res.json(livros);
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao listar livros' });
@@ -88,7 +88,10 @@ export class LivroControle {
             if (errors.length > 0) {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
-            await this.livroService.atualizarLivro(id.toString(), livroDto);
+            const livro = await this.livroService.atualizarLivro(id.toString(), livroDto, req.usuarioId!);
+            if (!livro) {
+                return res.status(403).json({ error: 'Livro não encontrado ou você não tem permissão para editá-lo' });
+            }
             res.json({ message: 'Livro atualizado com sucesso', livro: livroDto });
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao atualizar livro' });
@@ -101,7 +104,10 @@ export class LivroControle {
             if (!id) {
                 return res.status(400).json({ error: 'ID é obrigatório' });
             }
-            await this.livroService.excluirLivro(id.toString());
+            const sucesso = await this.livroService.excluirLivro(id.toString(), req.usuarioId!);
+            if (!sucesso) {
+                return res.status(403).json({ error: 'Livro não encontrado ou você não tem permissão para excluí-lo' });
+            }
             res.json({ message: 'Livro excluído com sucesso' });
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao excluir livro' });

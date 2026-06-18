@@ -7,9 +7,9 @@ export class AvaliacaoService {
     public constructor(private readonly avaliacaoDAO: AvaliacaoDAO) {
     }
 
-    public async criarAvaliacao(avaliacaoDto: AvaliacaoCreateDTO): Promise<Avaliacao> {
+    public async criarAvaliacao(avaliacaoDto: AvaliacaoCreateDTO, usuarioId: string): Promise<Avaliacao> {
         const avaliacao = Avaliacao.construir(avaliacaoDto.livroId, avaliacaoDto.avaliacao, avaliacaoDto.comentario);
-        await this.avaliacaoDAO.criarAvaliacao(avaliacao);
+        await this.avaliacaoDAO.criarAvaliacao(avaliacao, usuarioId);
         return avaliacao;
     }
 
@@ -18,22 +18,22 @@ export class AvaliacaoService {
         return avaliacoes;
     }
 
-    public async atualizarAvaliacao(id: string, avaliacaoDto: AvaliacaoCreateDTO): Promise<Avaliacao | null> {
+    public async atualizarAvaliacao(id: string, avaliacaoDto: AvaliacaoCreateDTO, usuarioId: string): Promise<Avaliacao | null> {
         const existentes = await this.avaliacaoDAO.buscarAvaliacoesPorLivroId(avaliacaoDto.livroId);
         if (existentes.length === 0) {
             return null;
         }
         const avaliacao = Avaliacao.reconstruir({ id, livroId: avaliacaoDto.livroId, avaliacao: avaliacaoDto.avaliacao, comentario: avaliacaoDto.comentario ?? undefined });
-        await this.avaliacaoDAO.atualizarAvaliacao(avaliacao);
+        await this.avaliacaoDAO.atualizarAvaliacao(avaliacao, usuarioId);
         return avaliacao;
     }
 
-    public async deletarAvaliacao(id: string): Promise<boolean> {
+    public async deletarAvaliacao(id: string, usuarioId: string): Promise<boolean> {
         const existentes = await this.avaliacaoDAO.buscarAvaliacoesPorLivroId(id);
         if (existentes.length === 0) {
             return false;
         }
-        await this.avaliacaoDAO.deletarAvaliacao(id);
+        await this.avaliacaoDAO.deletarAvaliacao(id, usuarioId);
         return true;
     }
 

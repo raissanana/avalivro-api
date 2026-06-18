@@ -3,9 +3,8 @@ import { Livro } from '../modelo/livro';
 import { sql } from '../util/conexao';
 
 export class LivroDAO {
-    public async criarLivro(livro: Livro): Promise<void> {
+    public async criarLivro(livro: Livro, usuarioId: string): Promise<void> {
         try {
-            const usuarioId = process.env.DEFAULT_DB_USER_ID;
             const result: any = await sql(
                 'INSERT INTO livro (id, titulo, autor, ano, avaliacao_media, created_by) VALUES (?, ?, ?, ?, ?, ?) RETURNING *',
                 [livro.id, livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, usuarioId]
@@ -30,9 +29,9 @@ export class LivroDAO {
         }
     }
 
-    public async listarTodosLivros(): Promise<LivroListDTO[]> {
+    public async listarTodosLivros(usuarioId: string): Promise<LivroListDTO[]> {
         try {
-            const rows: any = await sql('SELECT * FROM livro');
+            const rows: any = await sql('SELECT * FROM livro WHERE created_by = ?', [usuarioId]);
             return rows.map((row: any) => ({ id: row.id, titulo: row.titulo, autor: row.autor }));
         } catch (error) {
             console.error('Erro ao listar livros:', error);
@@ -59,11 +58,11 @@ export class LivroDAO {
             throw new Error('Erro ao buscar avaliações');
         }
     }
-    public async atualizarLivro(livro: Livro): Promise<Livro | null> {
+    public async atualizarLivro(livro: Livro, usuarioId: string): Promise<Livro | null> {
         try {
             const result: any = await sql(
-                'UPDATE livro SET titulo = ?, autor = ?, ano = ?, avaliacao_media = ? WHERE id = ? RETURNING *',
-                [livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, livro.id]
+                'UPDATE livro SET titulo = ?, autor = ?, ano = ?, avaliacao_media = ? WHERE id = ? AND created_by = ? RETURNING *',
+                [livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, livro.id, usuarioId]
             );
             if (result.length === 0) {
                 return null;
@@ -75,9 +74,9 @@ export class LivroDAO {
         }
     }
 
-    public async excluirLivro(id: string): Promise<boolean> {
+    public async excluirLivro(id: string, usuarioId: string): Promise<boolean> {
         try {
-            const result: any = await sql('DELETE FROM livro WHERE id = ? RETURNING id', [id]);
+            const result: any = await sql('DELETE FROM livro WHERE id = ? AND created_by = ? RETURNING id', [id, usuarioId]);
             return result.length > 0;
         } catch (error) {
             console.error('Erro ao excluir livro:', error);

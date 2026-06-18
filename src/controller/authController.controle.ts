@@ -3,6 +3,7 @@ import { LoginDTO } from "../dto/login.dto";
 import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
 import { AuthService } from "../service/authController.service";
+import jwt from "jsonwebtoken";
 
 export class AuthController {
     private authService: AuthService;
@@ -23,7 +24,12 @@ export class AuthController {
             if (!usuario) {
                 return res.status(401).json({ error: 'Credenciais inválidas' });
             }
-            res.json({ message: 'Login bem-sucedido', usuario });
+            const token = jwt.sign(
+                { id: usuario.id, email: usuario.email },
+                process.env.JWT_SECRET || 'secret_temporario_para_desenvolvimento',
+                { expiresIn: '8h' }
+            );
+            res.json({ message: 'Login bem-sucedido', token, usuario });
         } catch (error) {
             res.status(500).json({ error: 'Erro ao realizar login' });
         }
