@@ -11,13 +11,13 @@ const usuarioControle = new UsuarioControle(
 
 usuarioRoutes
   .route('/')
-  .get(async (req, res) => usuarioControle.listarTodosUsuarios(req, res))
-  .post(async (req, res) => usuarioControle.criarUsuario(req, res));
+  .get((req, res, next) => usuarioControle.listarTodosUsuarios(req, res, next))
+  .post((req, res, next) => usuarioControle.criarUsuario(req, res, next));
 
 usuarioRoutes
   .route('/:id')
-  .get(async (req, res) => usuarioControle.buscarUsuarioPorId(req, res))
-  .put(async (req, res) => usuarioControle.atualizarUsuario(req, res))
-  .delete(async (req, res) => usuarioControle.deletarUsuario(req, res));
+  .get((req, res, next) => usuarioControle.buscarUsuarioPorId(req, res, next))
+  .put((req, res, next) => usuarioControle.atualizarUsuario(req, res, next))
+  .delete((req, res, next) => usuarioControle.deletarUsuario(req, res, next));
 
 export default usuarioRoutes;

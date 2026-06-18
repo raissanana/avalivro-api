@@ -1,17 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AvaliacaoControle = void 0;
-const avaliacao_dao_1 = require("../dao/avaliacao.dao");
-const avaliacao_1 = require("../modelo/avaliacao");
+const class_transformer_1 = require("class-transformer");
+const class_validator_1 = require("class-validator");
+const avaliacao_dto_1 = require("../dto/avaliacao.dto");
 class AvaliacaoControle {
-    constructor() {
-        this.avaliacaoDAO = new avaliacao_dao_1.AvaliacaoDAO();
+    constructor(avaliacaoService) {
+        this.avaliacaoService = avaliacaoService;
     }
     async criarAvaliacao(req, res) {
         try {
-            const { livroId, avaliacao: nota, comentario } = req.body;
-            const avaliacao = avaliacao_1.Avaliacao.construir(livroId, nota, comentario);
-            await this.avaliacaoDAO.criarAvaliacao(avaliacao);
+            const avaliacaoDto = (0, class_transformer_1.plainToInstance)(avaliacao_dto_1.AvaliacaoCreateDTO, req.body);
+            const errors = await (0, class_validator_1.validate)(avaliacaoDto);
+            if (errors.length > 0) {
+                return res.status(400).json({ errors: errors.map(e => e.toString()) });
+            }
+            const avaliacao = await this.avaliacaoService.criarAvaliacao(avaliacaoDto, req.usuarioId);
             res.status(201).json({ message: 'Avaliação criada com sucesso', avaliacao });
         }
         catch (error) {
@@ -24,7 +28,7 @@ class AvaliacaoControle {
             if (!id) {
                 return res.status(400).json({ error: 'ID do livro é obrigatório' });
             }
-            const avaliacoes = await this.avaliacaoDAO.buscarAvaliacoesPorLivroId(id.toString());
+            const avaliacoes = await this.avaliacaoService.buscarAvaliacoesPorLivroId(id.toString());
             res.json(avaliacoes);
         }
         catch (error) {
@@ -34,9 +38,12 @@ class AvaliacaoControle {
     async atualizarAvaliacao(req, res) {
         try {
             const { id } = req.params;
-            const { avaliacao: nota, comentario } = req.body;
-            const avaliacao = avaliacao_1.Avaliacao.reconstruir({ id: id.toString(), livroId: '', avaliacao: nota, comentario });
-            await this.avaliacaoDAO.atualizarAvaliacao(avaliacao);
+            const livroDto = (0, class_transformer_1.plainToInstance)(avaliacao_dto_1.AvaliacaoCreateDTO, req.body);
+            const errors = await (0, class_validator_1.validate)(livroDto);
+            if (errors.length > 0) {
+                return res.status(400).json({ errors: errors.map(e => e.toString()) });
+            }
+            const avaliacao = await this.avaliacaoService.atualizarAvaliacao(id.toString(), livroDto, req.usuarioId);
             res.json({ message: 'Avaliação atualizada com sucesso', avaliacao });
         }
         catch (error) {
@@ -46,7 +53,7 @@ class AvaliacaoControle {
     async deletarAvaliacao(req, res) {
         try {
             const { id } = req.params;
-            await this.avaliacaoDAO.deletarAvaliacao(id.toString());
+            await this.avaliacaoService.deletarAvaliacao(id.toString(), req.usuarioId);
             res.json({ message: 'Avaliação deletada com sucesso' });
         }
         catch (error) {

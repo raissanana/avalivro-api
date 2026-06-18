@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Livro = void 0;
+const crypto_1 = __importDefault(require("crypto"));
 class Livro {
     constructor(props) {
         this.props = props;
@@ -12,7 +16,7 @@ class Livro {
         if (typeof ano !== 'number' || ano <= 0) {
             throw new Error('Ano deve ser um número positivo');
         }
-        const id = crypto.randomUUID().toString();
+        const id = crypto_1.default.randomUUID().toString();
         const props = {
             id,
             titulo,

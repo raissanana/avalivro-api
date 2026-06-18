@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Usuario = void 0;
+const crypto_1 = __importDefault(require("crypto"));
 class Usuario {
     constructor(props) {
         this.props = props;
@@ -9,7 +13,7 @@ class Usuario {
         if (!email || !senha) {
             throw new Error('Todos os campos são obrigatórios');
         }
-        const id = crypto.randomUUID().toString();
+        const id = crypto_1.default.randomUUID().toString();
         const props = {
             id,
             email,

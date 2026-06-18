@@ -68,5 +68,18 @@ class usuarioDAO {
             throw new Error('Erro ao buscar usuário por login');
         }
     }
+    async buscarPorEmail(email) {
+        try {
+            const rows = await (0, conexao_1.sql)('SELECT * FROM usuario WHERE email = $1', [email]);
+            if (rows.length === 0) {
+                return null;
+            }
+            return usuario_1.Usuario.reconstruir(rows[0]);
+        }
+        catch (error) {
+            console.error('Erro ao buscar usuário por email:', error);
+            throw new Error('Erro ao buscar usuário por email');
+        }
+    }
 }
 exports.usuarioDAO = usuarioDAO;

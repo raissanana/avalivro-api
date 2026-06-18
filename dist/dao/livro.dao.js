@@ -4,9 +4,9 @@ exports.LivroDAO = void 0;
 const livro_1 = require("../modelo/livro");
 const conexao_1 = require("../util/conexao");
 class LivroDAO {
-    async criarLivro(livro) {
+    async criarLivro(livro, usuarioId) {
         try {
-            const result = await (0, conexao_1.sql)('INSERT INTO livro (id, titulo, autor, ano, avaliacao_media) VALUES (?, ?, ?, ?, ?) RETURNING *', [livro.id, livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia]);
+            const result = await (0, conexao_1.sql)('INSERT INTO livro (id, titulo, autor, ano, avaliacao_media, created_by) VALUES (?, ?, ?, ?, ?, ?) RETURNING *', [livro.id, livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, usuarioId]);
         }
         catch (error) {
             console.error('Erro ao criar livro:', error);
@@ -27,9 +27,9 @@ class LivroDAO {
             throw new Error('Erro ao buscar livro');
         }
     }
-    async listarTodosLivros() {
+    async listarTodosLivros(usuarioId) {
         try {
-            const rows = await (0, conexao_1.sql)('SELECT * FROM livro');
+            const rows = await (0, conexao_1.sql)('SELECT * FROM livro WHERE created_by = ?', [usuarioId]);
             return rows.map((row) => ({ id: row.id, titulo: row.titulo, autor: row.autor }));
         }
         catch (error) {
@@ -57,9 +57,9 @@ class LivroDAO {
             throw new Error('Erro ao buscar avaliações');
         }
     }
-    async atualizarLivro(livro) {
+    async atualizarLivro(livro, usuarioId) {
         try {
-            const result = await (0, conexao_1.sql)('UPDATE livro SET titulo = ?, autor = ?, ano = ?, avaliacao_media = ? WHERE id = ? RETURNING *', [livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, livro.id]);
+            const result = await (0, conexao_1.sql)('UPDATE livro SET titulo = ?, autor = ?, ano = ?, avaliacao_media = ? WHERE id = ? AND created_by = ? RETURNING *', [livro.titulo, livro.autor, livro.ano, livro.avaliacaoMedia, livro.id, usuarioId]);
             if (result.length === 0) {
                 return null;
             }
@@ -70,9 +70,9 @@ class LivroDAO {
             throw new Error('Erro ao atualizar livro');
         }
     }
-    async excluirLivro(id) {
+    async excluirLivro(id, usuarioId) {
         try {
-            const result = await (0, conexao_1.sql)('DELETE FROM livro WHERE id = ? RETURNING id', [id]);
+            const result = await (0, conexao_1.sql)('DELETE FROM livro WHERE id = ? AND created_by = ? RETURNING id', [id, usuarioId]);
             return result.length > 0;
         }
         catch (error) {

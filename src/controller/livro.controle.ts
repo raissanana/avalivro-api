@@ -20,9 +20,19 @@ export class LivroControle {
                 return res.status(400).json({ errors: errors.map(e => e.toString()) });
             }
 
-            await this.livroService.criarLivro(livroDto, req.usuarioId!);
+            const livro = await this.livroService.criarLivro(livroDto, req.usuarioId!);
 
-            res.status(201).json({ message: 'Livro criado com sucesso', livro: livroDto });
+            console.log('id livro:' + livro.id);
+
+            res.status(201).json({ 
+                message: 'Livro criado com sucesso', 
+                livro: {
+                    id: livro.id,
+                    titulo: livro.titulo,
+                    autor: livro.autor,
+                    ano: livro.ano
+                }
+            });
         } catch (erro) {
             res.status(500).json({ error: 'Erro ao criar livro' });
         }

@@ -79,4 +79,17 @@ export class usuarioDAO {
             throw new Error('Erro ao buscar usuário por login');
         }
     }
+
+    public async buscarPorEmail(email: string): Promise<Usuario | null> {
+        try {
+            const rows = await sql('SELECT * FROM usuario WHERE email = $1', [email]) as any[];
+            if (rows.length === 0) {
+                return null;
+            }
+            return Usuario.reconstruir(rows[0]);
+        } catch (error) {
+            console.error('Erro ao buscar usuário por email:', error);
+            throw new Error('Erro ao buscar usuário por email');
+        }
+    }
 }
